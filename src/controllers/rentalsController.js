@@ -51,12 +51,11 @@ export async function getRentals(req, res) {
       ${customerId ? `WHERE "customerId" = $1` : ` `}
       ${gameId ? `WHERE "gameId" = $1` : ` `};
     `,
-      [id]
+      id ? [id] : []
     );
 
     res.send(rentalsCustomerGame.rows[0].json_agg);
   } catch (err) {
-    console.log(err);
     res.status(500).send(err);
   }
 }
