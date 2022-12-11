@@ -80,7 +80,37 @@ export async function postRental(req, res) {
   }
 }
 
-export async function finishRental(req, res) {}
+export async function finishRental(req, res) {
+  const { id } = req.params;
+
+  try {
+    const rental = res.locals.rental;
+    rental.returnDate = dayjs().format("YYYY-MM-DD");
+
+    const rentDate = dayjs(rental.rentDate);
+    const returnDate = dayjs(rental.returnDate);
+    const delay = returnDate.diff(rentDate, "day");
+
+    if (delay > 0) rental.delayFee = rental.originalPrice * (delay - rental.daysRented);
+    if (delay <= 0) rental.delayFee = 0;
+
+    await connection.query(
+      `
+      UPDATE rentals
+      SET
+        "returnDate" = '${rental.returnDate}', "delayFee" = '${rental.delayFee}'
+      WHERE
+        id = $1;
+    `,
+      [id]
+    );
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+}
 
 export async function deleteRental(req, res) {
   const { id } = req.params;

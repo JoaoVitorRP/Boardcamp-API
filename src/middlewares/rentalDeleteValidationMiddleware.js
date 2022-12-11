@@ -4,7 +4,7 @@ export async function rentalDeleteValidation(req, res, next) {
   const { id } = req.params;
 
   try {
-    const rentalWithThisId = await connection.query(`SELECT * FROM rentals WHERE id = $1`, [id]);
+    const rentalWithThisId = await connection.query(`SELECT * FROM rentals WHERE id = $1;`, [id]);
     if (rentalWithThisId.rows.length === 0) return res.status(404).send("Could not find a rental with this id");
 
     const rentalIsFinished = rentalWithThisId.rows[0].returnDate;
