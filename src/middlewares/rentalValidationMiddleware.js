@@ -14,9 +14,7 @@ export async function rentalValidation(req, res, next) {
     const customerWithThisId = await connection.query(`SELECT * FROM customers WHERE id = ${customerId};`);
     if (customerWithThisId.rows.length === 0) return res.status(400).send("Could not find a customer with this id");
 
-    const numberOfRentals = await connection.query(`SELECT * FROM rentals WHERE "gameId" = ${gameId};`);
-    const numberOfCopies = gameWithThisId.rows[0].stockTotal;
-    if (numberOfRentals.rows.length >= numberOfCopies) return res.status(400).send("Out of stock");
+    if (gameWithThisId.rows[0].stockTotal <= 0) return res.status(400).send("Out of stock");
 
     const gamePrice = gameWithThisId.rows[0].pricePerDay;
 

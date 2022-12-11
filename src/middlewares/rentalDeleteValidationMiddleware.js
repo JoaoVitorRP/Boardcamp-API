@@ -9,6 +9,8 @@ export async function rentalDeleteValidation(req, res, next) {
 
     const rentalIsFinished = rentalWithThisId.rows[0].returnDate;
     if (!rentalIsFinished) return res.status(400).send("This rental is not finished");
+
+    res.locals.gameId = rentalWithThisId.rows[0].gameId;
   } catch (err) {
     return res.status(500).send(err);
   }
