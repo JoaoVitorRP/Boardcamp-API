@@ -19,7 +19,7 @@ export async function postCategory(req, res) {
   try {
     const categoryAlreadyExists = await connection.query(`SELECT * FROM categories WHERE name = '${name}';`);
 
-    if (categoryAlreadyExists.rows.length !== 0) return res.sendStatus(409);
+    if (categoryAlreadyExists.rows.length !== 0) return res.status(409).send("This category already exists");
 
     await connection.query(`INSERT INTO categories (name) VALUES ('${name}');`);
 

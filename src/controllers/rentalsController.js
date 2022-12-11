@@ -101,13 +101,12 @@ export async function finishRental(req, res) {
         "returnDate" = '${rental.returnDate}', "delayFee" = '${rental.delayFee}'
       WHERE
         id = $1;
-    `,
+      `,
       [id]
     );
 
     res.sendStatus(200);
   } catch (err) {
-    console.log(err);
     res.status(500).send(err);
   }
 }

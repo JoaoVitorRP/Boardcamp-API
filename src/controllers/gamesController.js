@@ -4,23 +4,23 @@ export async function getGames(req, res) {
   const { name } = req.query;
 
   try {
-    let games;
-    if (name) {
-      games = await connection.query("SELECT * FROM games WHERE LOWER(name) LIKE $1;", [`${name}%`]);
-    } else {
-      games = await connection.query(`SELECT * FROM games;`);
-    }
+    const games = await connection.query(
+      `
+      SELECT games.*, categories.name AS "categoryName"
+      FROM
+        games
+      JOIN
+        categories
+      ON
+        games."categoryId" = categories.id
+      ${name ? `WHERE LOWER(games.name) LIKE $1` : ` `};
+      `,
+      name ? [`${name}%`] : []
+    );
 
-    let newRows = [];
-    for (let i = 0; i < games.rows.length; i++) {
-      const currentRow = games.rows[i];
-
-      const categoryName = await connection.query(`SELECT * FROM categories WHERE id = ${currentRow.categoryId};`);
-      newRows.push({ ...currentRow, categoryName: categoryName.rows[0].name });
-    }
-
-    res.send(newRows);
+    res.send(games.rows);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 }
