@@ -2,11 +2,12 @@ import dayjs from "dayjs";
 import { connection } from "../database/db.js";
 
 export async function getRentals(req, res) {
-  const { customerId, gameId } = req.query;
+  const { customerId, gameId, status, startDate } = req.query;
 
-  let id;
-  if (customerId) id = customerId;
-  if (gameId) id = gameId;
+  let bind;
+  if (customerId) bind = customerId;
+  if (gameId) bind = gameId;
+  if (startDate) bind = startDate;
 
   try {
     const rentalsCustomerGame = await connection.query(
@@ -49,9 +50,12 @@ export async function getRentals(req, res) {
       ON
         g."categoryId" = ca.id
       ${customerId ? `WHERE "customerId" = $1` : ` `}
-      ${gameId ? `WHERE "gameId" = $1` : ` `};
+      ${gameId ? `WHERE "gameId" = $1` : ` `}
+      ${status === 'open' ? `WHERE "returnDate" IS NULL` : ` `}
+      ${status === 'closed' ? `WHERE "returnDate" IS NOT NULL` : ` `}
+      ${startDate ? `WHERE "rentDate" >= $1` : ` `};
     `,
-      id ? [id] : []
+      bind ? [bind] : []
     );
 
     res.send(rentalsCustomerGame.rows[0].json_agg);
