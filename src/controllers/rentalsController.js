@@ -13,40 +13,27 @@ export async function getRentals(req, res) {
     const rentalsCustomerGame = await connection.query(
       `
       SELECT
-        json_agg(
-          json_build_object(
-            'id', r.id,
-            'customerId', r."customerId",
-            'gameId', r."gameId",
-            'rentDate', r."rentDate",
-            'daysRented', r."daysRented",
-            'returnDate', r."returnDate",
-            'originalPrice', r."originalPrice",
-            'delayFee', r."delayFee",
-            'customer', json_build_object(
-              'id', c.id,
-              'name', c.name
-            ),
-            'game', json_build_object(
-              'id', g.id,
-              'name', g.name,
-              'categoryId', g."categoryId",
-              'categoryName', ca.name
-            )
-          )
-        )
+        r.*,
+        ( SELECT row_to_json(customerRows) 
+          FROM (SELECT c.id, c.name) 
+          AS customerRows ) 
+        AS customer,
+        ( SELECT row_to_json(gameRows) 
+          FROM (SELECT g.id, g.name, g."categoryId", ca.name AS "categoryName") 
+          AS gameRows ) 
+        AS game
       FROM
-        rentals r
+        rentals AS r
       JOIN
-        customers c
+        customers AS c
       ON
         r."customerId" = c.id
       JOIN
-        games g
+        games AS g
       ON 
         r."gameId" = g.id
       JOIN
-        categories ca
+        categories AS ca
       ON
         g."categoryId" = ca.id
       ${customerId ? `WHERE "customerId" = $1` : ` `}
@@ -58,8 +45,9 @@ export async function getRentals(req, res) {
       bind ? [bind] : []
     );
 
-    res.send(rentalsCustomerGame.rows[0].json_agg);
+    res.send(rentalsCustomerGame.rows);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 }
