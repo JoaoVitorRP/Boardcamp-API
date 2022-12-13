@@ -20,7 +20,6 @@ export async function getGames(req, res) {
 
     res.send(games.rows);
   } catch (err) {
-    console.log(err);
     res.status(500).send(err);
   }
 }

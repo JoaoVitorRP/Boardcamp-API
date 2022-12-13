@@ -47,7 +47,6 @@ export async function getRentals(req, res) {
 
     res.send(rentalsCustomerGame.rows);
   } catch (err) {
-    console.log(err);
     res.status(500).send(err);
   }
 }
@@ -119,7 +118,6 @@ export async function finishRental(req, res) {
 export async function deleteRental(req, res) {
   const { id } = req.params;
   const gameId = res.locals.gameId;
-  console.log(gameId);
 
   try {
     await connection.query(`DELETE FROM rentals WHERE id = $1;`, [id]);
