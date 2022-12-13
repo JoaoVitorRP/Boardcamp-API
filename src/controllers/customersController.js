@@ -34,7 +34,7 @@ export async function getCustomerById(req, res) {
 
     if (customer.rows.length === 0) return res.status(404).send("Could not find a costumer with this id");
 
-    res.send(customer.rows);
+    res.send(customer.rows[0]);
   } catch (err) {
     res.status(500).send(err);
   }
